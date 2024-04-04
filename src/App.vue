@@ -29,7 +29,6 @@ const userInfo = ref({
 })
 const request = axios.create({
   baseURL: '/api'
-  // baseURL: 'http://47.236.176.127:1200'
 })
 const logHello = async () => {
   const r = await request.get(
