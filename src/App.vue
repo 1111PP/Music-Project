@@ -1,64 +1,30 @@
 <template>
   <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
   <!-- <button @click="getData">clickthis</button> -->
-  <form>
-    <label for="username">username:
-    </label>
-    <input v-model="userInfo.username" type="text" name="username">
-    <br>
-    <label for="password">password:
-    </label>
-    <input v-model="userInfo.password" type="text" name="password">
-    <br>
-    <button @click.prevent="getData">submit</button>
-  </form>
-  <button class="btn btn-primary">Primary button</button>
-  <button @click="logHello">logHello</button>
-  <div class="a">
-    <div class="b"></div>
-  </div>
+  <van-config-provider style="height:100%" :theme-vars="themeVars">
+    <router-view></router-view>
+  </van-config-provider>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import axios from 'axios'
+import { reactive, } from 'vue';
+// themeVars 内的值会被转换成对应 CSS 变量
+// 比如 sliderBarHeight 会转换成 `--van-slider-bar-height`
+const themeVars = reactive({
+  rateIconFullColor: '#07c160',
+  sliderBarHeight: '4px',
+  sliderButtonWidth: '20px',
+  sliderButtonHeight: '20px',
+  sliderActiveBackground: '#07c160',
+  buttonPrimaryBackground: '#07c160',
+  buttonPrimaryBorderColor: '#07c160',
+});
 
-const userInfo = ref({
-  username: '',
-  password: ''
-})
-const request = axios.create({
-  baseURL: '/api'
-})
-const logHello = async () => {
-  const r = await request.get(
-    '/a'
-  );
-  alert(r.data)
-}
-const getData = async () => {
-  const r = await request.post(
-    '/login',
-    userInfo.value
-  );
-  if (r.data.code === 200) {
-    alert('Success Add')
-  } else {
-    alert("already exist")
-  }
-}
 </script>
 
 <style lang="scss">
-.a {
-  height: 100px;
-  width: 100px;
-  background-color: green;
-
-  .b {
-    background-color: red;
-    width: 50px;
-    height: 50px;
-  }
+.van-theme-dark body {
+  color: #f5f5f5;
+  background-color: black;
 }
 </style>
