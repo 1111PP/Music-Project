@@ -6,7 +6,12 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import { VantResolver } from '@vant/auto-import-resolver'
-
+//引入自定义的插件
+//1.开发时启动electron插件
+import { electronDevPlugin } from './plugins/vite.electron.dev'
+//2.electron打包插件
+import { ElectronBuildPlugin } from './plugins/vite.electron.build.js'
+import esbuild from 'rollup-plugin-esbuild'
 export default defineConfig({
   plugins: [
     // 以下两项为配置Element-plus按需自动引入
@@ -30,9 +35,24 @@ export default defineConfig({
         VantResolver(),
       ],
     }),
-    ,
+    //electron自动化开发测试和打包插件
+    electronDevPlugin(),
+    ElectronBuildPlugin(),
+    //可选链配置
+    {
+      ...esbuild({
+        target: 'chrome70',
+        include: /\.vue|.ts|.js$/,
+        loaders: {
+          '.vue': 'js',
+        },
+      }),
+      enforce: 'post',
+    },
     vue(),
   ],
+  //🟥默认是绝对路径，要改为相对路径,不然会白屏
+  base: './',
   resolve: {
     alias: {
       '@': path.resolve('./src'), // 相对路径别名配置，使用 @ 代替 src
@@ -45,6 +65,12 @@ export default defineConfig({
         target: 'http://localhost:1200/',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      //随机获取小猫图片
+      '/dog': {
+        target: 'https://dog.ceo/api/breeds/image/random',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/cat/, ''),
       },
     },
   },

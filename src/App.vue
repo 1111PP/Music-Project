@@ -1,9 +1,5 @@
 <template>
-  <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
-  <!-- <button @click="getData">clickthis</button> -->
-  <van-config-provider style="height:100%" :theme-vars="themeVars">
-    <router-view></router-view>
-  </van-config-provider>
+  <router-view></router-view>
 </template>
 
 <script setup>
@@ -23,8 +19,25 @@ const themeVars = reactive({
 </script>
 
 <style lang="scss">
+//用于覆盖elPlus组件的默认样式(😂丑陋)
 .van-theme-dark body {
   color: #f5f5f5;
   background-color: black;
+}
+
+.el-input {
+  --el-input-focus-border-color: rgb(209, 200, 200) !important;
+  --el-input-focus-bg-color: white !important;
+}
+
+.is-focus {}
+
+.el-input__wrapper {
+  background: linear-gradient(to right, #EAF0FA, #F8EEF7) !important;
+  border-radius: 10px !important;
+}
+
+.van-cell {
+  background-color: #F7F9FC !important;
 }
 </style>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .box:hover {
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+
+<body>
+  <div style="height: 40px;
+    width: 40px;background-color: red;" class="box"></div>
+  <script>
+    const imgUrlList = new Array(8).fill(null).map((i, idx) =>
+      `../../../public/main-songList-bg${idx + 1}.jpg`
+    )
+    // const a = Array.from({ length: 8 }).fill(1)
+    // .map((i, idx) => { return { id: idx } })
+    console.log(imgUrlList);
+  </script>
+</body>
+
+</html>

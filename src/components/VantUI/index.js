@@ -6,6 +6,7 @@ import {
   Field,
   CellGroup,
   Watermark,
+  Cell,
 } from 'vant'
 // import
 const allUI = [
@@ -16,6 +17,7 @@ const allUI = [
   Barrage,
   Field,
   CellGroup,
+  Cell,
 ]
 
 export default {
