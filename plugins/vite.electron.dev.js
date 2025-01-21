@@ -1,46 +1,103 @@
 //开发环境插件
 import { spawn } from 'child_process'
 import fs from 'node:fs'
-//启动vue项目的同时，顺便把electron的项目也启动，这样就不需要用到两个端口分别启动vue和electron了
+//
+//⚡ 全局存储electron进程的引用
+let ElectronProcess = null
+
+//打包编译background配置文件，输出到dist/background.js
+const buildBackground = () => {
+  require('esbuild').buildSync({
+    entryPoints: ['src/electron/background.js'],
+    bundle: true,
+    outfile: 'dist/background.js',
+    platform: 'node',
+    target: 'node12',
+    external: ['electron'],
+  })
+}
+//⚡ 创建新的electron进程
+const createElectronProcess = (ip) => {
+  // 创建子进程用于启动electron，同时获取前端项目启动的端口号http://localhost:5174，并把它作为参数中传入，后续可以在background.js中使用process.argv[2]获取项目启动的端口号，以正确的加载资源
+  const process = spawn(require('electron'), ['dist/background.js', ip])
+
+  process.stderr.on('data', (data) => {
+    console.log('electron日志:', data.toString())
+  })
+
+  process.on('error', (err) => {
+    console.error('electron进程错误:', err)
+  })
+
+  return process
+}
+
+//⚡ 安全地关闭electron进程
+const safeKillProcess = () => {
+  return new Promise((resolve) => {
+    if (!ElectronProcess) {
+      resolve()
+      return
+    }
+
+    ElectronProcess.once('exit', () => {
+      ElectronProcess = null
+      resolve()
+    })
+
+    try {
+      ElectronProcess.kill('SIGTERM')
+    } catch (err) {
+      console.error('关闭进程失败:', err)
+      ElectronProcess = null
+      resolve()
+    }
+  })
+}
+
 export const electronDevPlugin = () => {
   return {
     name: 'electron-dev',
-    //vite钩子，开发阶段启动vue项目时触发
     configureServer(server) {
-      //监听vite启动vue项目
+      buildBackground()
+
       server?.httpServer?.once('listening', () => {
-        //读取到vite启动vue项目时开启的端口addressInfo：5174
         const addressInfo = server.httpServer?.address()
-        console.log(addressInfo.port) //打印5174
-        //拼接当前启动vue项目的ip地址，用它来启动electron服务
         const IP = `http://localhost:${addressInfo.port}`
-        console.log(IP)
-        //✨进程传参法，将IP发送给background，让electron能够根据vue项目的位置启动一个electron窗口
-        //第一个参数时electron的入口文件,require('electron')会找到electron包中的命令
-        //第二个参数electron配置文件位置
-        //第三个参数是IP
-        //🟥electron启动：开启一个进程展示项目,返回这个进程的信息ElectronProcess
-        let ElectronProcess = spawn(require('electron'), [
-          'src/background.js',
-          IP,
-        ])
-        //👇配置：electron的热模块替换（🟥没有不是ts项目就不需要）
-        //(因此此项目是js作为electron配置文件，vite项目自带hot热更新，electron会监听到vue项目的变化，它也会随之更新)
-        //❌但是每次编译都会启动一个进程开启electron程序，所以在每次文件变化时必须干掉上一次electron开启的进程
-        // 监听文件变化
-        fs.watchFile('src/background.js', () => {
-          //   关闭上一个进程
-          ElectronProcess.kill()
-          //每次热模块替换时都会杀死上一个，开启一个新的
-          ElectronProcess = spawn(require('electron'), [
-            'src/background.js',
-            IP,
-          ])
-          //监听当前electron进程的日志
-          ElectronProcess.stderr.on('data', (data) => {
-            console.log('日志', data.toString())
-          })
-        })
+
+        //⚡ 首次启动electron
+        ElectronProcess = createElectronProcess(IP)
+
+        //⚡ 监听background.ts文件变化
+        fs.watchFile(
+          process.cwd() + '/src/electron/background.ts',
+          async () => {
+            console.log('检测到background.ts变化，重启electron...')
+            buildBackground()
+            //⚡ 等待旧进程完全关闭后再创建新进程
+            await safeKillProcess()
+            ElectronProcess = createElectronProcess(IP)
+
+            //监听当前electron进程的日志
+            ElectronProcess.stderr.on('data', (data) => {
+              console.log('❗ 日志', data.toString())
+            })
+            // 监听当前 Electron 进程的标准输出
+            ElectronProcess.stdout.on('data', (data) => {
+              console.log('🈯 输出', data.toString())
+            })
+          }
+        )
+
+        //⚡ 确保开发服务器关闭时清理资源
+        const cleanup = async () => {
+          await safeKillProcess()
+          fs.unwatchFile(process.cwd() + '/src/electron/background.js')
+        }
+
+        process.on('exit', cleanup)
+        process.on('SIGINT', cleanup)
+        process.on('SIGTERM', cleanup)
       })
     },
   }

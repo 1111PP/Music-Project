@@ -1,4 +1,4 @@
-<script  setup>
+<script setup>
 import { ref, onMounted, onBeforeUnmount, computed, nextTick, watch } from 'vue'
 const props = defineProps({
     outHeight: {
@@ -47,7 +47,7 @@ const visibleData = computed(() => {
 //记录内层辅助div的滚动卷去的高度变化
 const scrollTop = ref(0)
 
-//🟥不定高虚拟列表关键：监测外部父组件容器高度变化，内部的这个虚拟列表高度与父组件容器高度一致
+//🟥监测外部父组件容器高度变化，内部的这个虚拟列表高度与父组件容器高度一致
 watch(() => props.outHeight, (a, b) => {
     //监测高度变化，随之修改虚拟列表高度变化
     outHeight.value = props.outHeight
@@ -81,66 +81,48 @@ const scrollEvent = (e) => {
 onMounted(() => {
     // console.log(1);
     startIndex.value = 0
-    endIndex.value = 10
+    endIndex.value = props.count
 })
 </script>
 
 <template>
-    <div v-if="listData.length !== 0" @scroll="scrollEvent" :style="{ height: `${outHeight}px` }" class="container">
-        <div :style="{ height: `${totalHeight}px` }" class="block"></div>
-        <ul ref="ul" class="render" :style="{ transform: `translateY(${offsetDistance}px)` }">
-            <!-- 🟥由于是组件，展示的li标签结构由用户决定，但是数据prop传到了虚拟列表组件中，此处使用🟥作用域插槽 -->
-            <!-- :style="{ backgroundColor: '#F7F9FC' }"  -->
-            <li class="privateContainer" v-for="item in  visibleData " :key="item.id">
-                <slot :item="item">
-                </slot>
+    <div v-if="listData.length !== 0" @scroll="scrollEvent" :style="{ height: `${outHeight}px` }"
+        class="lp-virtual-container">
+        <div :style="{ height: `${totalHeight}px` }" class="lp-virtual-block"></div>
+        <ul ref="ul" class="lp-virtual-list" :style="{ transform: `translateY(${offsetDistance}px)` }">
+            <li class="lp-virtual-item" v-for="item in visibleData" :key="item.id">
+                <slot :item="item"></slot>
             </li>
         </ul>
     </div>
     <div v-else>
-        <slot>
-        </slot>
+        <slot></slot>
     </div>
 </template>
 
-<style scoped  lang="scss">
-.privateContainer:hover {
-    background-color: gray !important;
+<style scoped lang='scss'>
+.lp-virtual-item:hover {
+    background-color: #eeeff1;
 }
 
-
-
-/* 🟥当移动到列表上时再显示滚动条 */
-.container:hover {
-    // overflow-y: overlay;
-    /* 使用 calc 计算滚动条的宽度并减去 */
-}
-
-.container {
-    /* 默认隐藏滚动条滚动条🟥当移动到列表上时再显示滚动条 */
-    // overflow-y: hidden;//❌滚动条的出现会挤压左侧内容
+.lp-virtual-container {
     width: 400px;
     overflow: auto;
     position: relative;
 
-    .block {
+    .lp-virtual-block {
         position: absolute;
-        /* 层级降低，被ul遮盖 */
         z-index: -1;
         top: 0;
         left: 0;
         width: 100%;
     }
 
-    /* 与外层div对齐 */
-    ul {
-        // position: absolute;
+    .lp-virtual-list {
         top: 0;
         left: 0;
         width: 100%;
-        // list-style: none;
         padding: 0;
-        margin: 0;
     }
 }
 </style>

@@ -1,12 +1,13 @@
 //生产环境插件
 import fs from 'node:fs'
+// ts-ignore
 import * as electronBuilder from 'electron-builder'
 import path from 'path'
 //打包编译background配置文件，输出到dist/background.js
 const buildBackground = () => {
   require('esbuild').buildSync({
     // entryPoints: ['src/background.ts'],//如果是ts项目
-    entryPoints: ['src/background.js'],
+    entryPoints: ['src/electron/background.js'],
     bundle: true,
     outfile: 'dist/background.js',
     platform: 'node',

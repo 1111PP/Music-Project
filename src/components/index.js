@@ -1,34 +1,56 @@
 // 如果您正在使用CDN引入，请删除下面一行。
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import musicFooter from '@/components/musicFooter/index.vue'
-import svgLogo from '@/components/menuIcons/logo.vue'
-import svgLove from '@/components/menuIcons/love.vue'
-import svgChoiceness from '@/components/menuIcons/choiceness.vue'
-import svgBoKe from '@/components/menuIcons/boke.vue'
-import svgSYJ from '@/components/menuIcons/shoyinji.vue'
-import svgHome from '@/components/menuIcons/recommend.vue'
-import svgShequ from '@/components/menuIcons/shequ.vue'
-import svgZuiJin from '@/components/menuIcons/zuijin.vue'
-import svgMyBoKe from '@/components/menuIcons/WDBoKe.vue'
-import svgCollect from '@/components/menuIcons/collect.vue'
-import svgDownload from '@/components/menuIcons/downLoad.vue'
-import svgLocal from '@/components/menuIcons/local.vue'
-import svgCloud from '@/components/menuIcons/cloud.vue'
-import svgBack from '@/components/headerIcons/back.vue'
-import svgVoice from '@/components/headerIcons/voice.vue'
-import svgSetting from '@/components/headerIcons/setting.vue'
-import svgPersonal from '@/components/headerIcons/personal.vue'
-import svgMini from '@/components/headerIcons/minimize.vue'
-import svgMax from '@/components/headerIcons/maxmize.vue'
-import svgMiniModel from '@/components/headerIcons/mini.vue'
-import svgMail from '@/components/headerIcons/mail.vue'
-import svgDown from '@/components/headerIcons/down.vue'
-import svgClose from '@/components/headerIcons/closeApp.vue'
-import svgLine from '@/components/headerIcons/line.vue'
-import svgLogout from '@/components/headerIcons/logout.vue'
-import svgPlay from '@/components/mainIcons/play.vue'
-import svgTriangle from '@/components/mainIcons/triangle.vue'
 
+import svgLogo from '@/components/Icons/menuIcons/logo.vue'
+import svgLove from '@/components/Icons/menuIcons/love.vue'
+import svgChoiceness from '@/components/Icons/menuIcons/choiceness.vue'
+import svgBoKe from '@/components/Icons/menuIcons/boke.vue'
+import svgSYJ from '@/components/Icons/menuIcons/shoyinji.vue'
+import svgHome from '@/components/Icons/menuIcons/recommend.vue'
+import svgShequ from '@/components/Icons/menuIcons/shequ.vue'
+import svgZuiJin from '@/components/Icons/menuIcons/zuijin.vue'
+import svgMyBoKe from '@/components/Icons/menuIcons/WDBoKe.vue'
+import svgCollect from '@/components/Icons/menuIcons/collect.vue'
+import svgDownload from '@/components/Icons/menuIcons/downLoad.vue'
+import svgLocal from '@/components/Icons/menuIcons/local.vue'
+import svgCloud from '@/components/Icons/menuIcons/cloud.vue'
+
+import svgBack from '@/components/Icons/headerIcons/back.vue'
+import svgVoice from '@/components/Icons/headerIcons/voice.vue'
+import svgSetting from '@/components/Icons/headerIcons/setting.vue'
+import svgPersonal from '@/components/Icons/headerIcons/personal.vue'
+import svgMini from '@/components/Icons/headerIcons/minimize.vue'
+import svgMax from '@/components/Icons/headerIcons/maxmize.vue'
+import svgMiniModel from '@/components/Icons/headerIcons/mini.vue'
+import svgMail from '@/components/Icons/headerIcons/mail.vue'
+import svgDown from '@/components/Icons/headerIcons/down.vue'
+import svgClose from '@/components/Icons/headerIcons/closeApp.vue'
+import svgLine from '@/components/Icons/headerIcons/line.vue'
+import svgLogout from '@/components/Icons/headerIcons/logout.vue'
+
+import svgPlay from '@/components/Icons/mainIcons/play.vue'
+import svgTriangle from '@/components/Icons/mainIcons/triangle.vue'
+import svgBig from '@/components/Icons/mainIcons/big.vue'
+import svgContinue from '@/components/Icons/mainIcons/continue.vue'
+
+import svgMysicCollect from '@/components/Icons/footerIcons/collect.vue'
+import svgComment from '@/components/Icons/footerIcons/comment.vue'
+import svgTransmit from '@/components/Icons/footerIcons/transmit.vue'
+import svgPrevSong from '@/components/Icons/footerIcons/prevSong.vue'
+import svgNextSong from '@/components/Icons/footerIcons/nextSong.vue'
+import svgListPlay from '@/components/Icons/footerIcons/listPlay.vue'
+import svgLoopPlay from '@/components/Icons/footerIcons/loopPlay.vue'
+import svgRandomPlay from '@/components/Icons/footerIcons/randomPlay.vue'
+import svgWords from '@/components/Icons/footerIcons/words.vue'
+import svgVipVolume from '@/components/Icons/footerIcons/vipVolume.vue'
+import svgWillPlayList from '@/components/Icons/footerIcons/willPlayList.vue'
+import svgVolume from '@/components/Icons/footerIcons/volume.vue'
+import svgNoVolume from '@/components/Icons/footerIcons/noVolume.vue'
+// comment
+import svgUpvote from '@/components/Icons/commentIcons/upvote.vue'
+//表情包组件
+import VEmojiPicker from '@/components/VEmojiPicker/index.vue'
 const allGlobalComponents = {
   musicFooter,
   svgLogo,
@@ -59,6 +81,27 @@ const allGlobalComponents = {
   // main界面图标
   svgPlay,
   svgTriangle,
+  svgBig,
+  svgContinue,
+  //footer界面图标
+  svgMysicCollect,
+  svgComment,
+  svgTransmit,
+  svgPrevSong,
+  svgNextSong,
+  svgListPlay,
+  svgLoopPlay,
+  svgRandomPlay,
+  svgWords,
+  svgVipVolume,
+  svgWillPlayList,
+  svgVolume,
+  svgNoVolume,
+  // comment界面图标
+  svgUpvote,
+
+  //表情包
+  VEmojiPicker,
 }
 export default {
   install(app) {

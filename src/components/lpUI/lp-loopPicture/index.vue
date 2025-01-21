@@ -1,5 +1,5 @@
-<script  setup>
-import { ref, onMounted, computed, nextTick, toRefs, reactive, watch } from 'vue'
+<script setup>
+import { ref, onMounted, computed, nextTick, toRefs, onBeforeUnmount, reactive, watch } from 'vue'
 import { vhToPx } from '@/utils/pxToVh.js'
 import settingInfo from '@/setting.js'
 const props = defineProps({
@@ -30,6 +30,7 @@ let timer = null
 let picCount
 //设置两张首位赋值轮播图
 const initFirstAndEnd = () => {
+    if (!totalData.value.length) return
     totalData.value.unshift({
         id: 123,
         url: totalData.value[totalData.value.length - 1].url,
@@ -81,14 +82,14 @@ const leftMove = (index) => {
 //移动指定index的轮播图函数
 // 🟥🟥🟥关键步骤:制造错觉，当轮播到最后一张图片时，会理解无过渡效果的移动到最左侧辅助轮播图上，随后move(1)继续轮播第一张
 const rightMove = (index) => {
-    // if 轮播到最后一张图片
+    // 🈯轮播到最后一张图片之前做特殊处理
     if (currIndex.value === picCount - 2) {
         box.value.style.transform = `translateX(100%)`//此时存在过渡效果，移动最后一张轮播图
         //并瞬间移动至最左侧的🈯辅助轮播图
         box.value.style.transform = `translateX(${0}px)`
         box.value.style.transition = 'none'//过渡取消
         // 🈯box.clientHeight会强制渲染，就是让过渡为none的这次过渡行为立即失效
-        // 🟥🟥🟥如果不强制渲染，则最右轮播图切换到最左侧辅助轮播图时还是会有过渡效果，这是因为没有渲染导致的，box.style.transition = 'none'还没有生效就又被move中设置了过渡效果
+        // 🟥🟥🟥如果不强制渲染，则最右轮播图切换到最左侧辅助轮播图时还是会有过渡效果，这是因为没有及时渲染导致的，box.style.transition = 'none'还没有生效就又被move中设置了过渡效果
         box.value.clientHeight
         // move(1)继续轮播第一张
         move(1)
@@ -115,6 +116,7 @@ onMounted(() => {
     loopPicture()
     //🟥nextTick是为了等待initFirstAndEnd执行完毕，两张辅助轮播图渲染结束后，在整体对所有轮播图处理，调整轮播图的尺寸，让他们保持响应式
     nextTick(() => {
+        if (!imgs.value) return
         // 🟥整个应用打开后的初始宽度为1130px，这是定死的，所以这个轮播组件应该也保持同样的宽度比例，大概在35vw宽度,在这个初始屏幕下首先转化轮播图px单位 -> vw值，随后赋值给图片的width
         let width = (props.width / settingInfo.INITSCREENWIDTH).toFixed(2) * 100
         //1.先设置轮播图width宽度为vw单位
@@ -163,28 +165,34 @@ onMounted(() => {
     })
 
 })
-
+onBeforeUnmount(() => {
+    clearInterval(timer)
+    //❓他妈的创建销毁必须移除前后两个辅助轮播图，不然这俩图会一直叠加并出错(╯▔皿▔)╯❓❓❓为啥？
+    totalData.value.shift()
+    totalData.value.pop()
+})
 </script>
 
 <template>
-    <div class="container" ref="container">
-        <div class="box" ref="box">
-            <img ref="imgs" :src="item.url" class="imgs" v-for="item in totalData" :key="item.id">
+    <div class="lp-loop-container" ref="container">
+        <div class="lp-loop-box" :style="{ width: totalData.length ? '9999px' : '0px' }" ref="box">
+            <img ref="imgs" :src="item.url" class="lp-loop-img" v-for="item in totalData" :key="item.id">
         </div>
-        <ul class="ul" ref="ul">
+        <ul class="lp-loop-dots" ref="ul">
             <li v-for="item in totalData.slice(1, picCount - 1)" :key="item.id"
-                :class="{ active: currIndex - 1 === item.id }" @mouseenter="liOver(item.id)" @mouseleave="liOut()">
+                :class="{ 'lp-loop-dot-active': currIndex - 1 === item.id }" @mouseenter="liOver(item.id)"
+                @mouseleave="liOut()">
             </li>
         </ul>
     </div>
 </template>
 
 <style scoped lang='scss'>
-.active {
-    background-color: white;
+.lp-loop-dot-active {
+    background-color: white !important;
 }
 
-.container:hover::before {
+.lp-loop-container:hover::before {
     content: '';
     position: absolute;
     top: 0;
@@ -195,20 +203,17 @@ onMounted(() => {
     z-index: 99;
 }
 
-.container {
+.lp-loop-container {
     position: relative;
     overflow: hidden;
     border-radius: 10px;
 
-    .box {
+    .lp-loop-box {
         display: flex;
-        width: 9999px;
         height: 100px;
 
-        /* transition: .5s; */
-        .imgs {
+        .lp-loop-img {
             border-radius: 10px;
-            /* 🟥轮播图中的间隙*/
             margin-left: 15px;
             border: none;
             overflow: hidden;
@@ -218,8 +223,7 @@ onMounted(() => {
     }
 }
 
-
-ul {
+.lp-loop-dots {
     z-index: 999;
     position: absolute;
     display: flex;

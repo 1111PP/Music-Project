@@ -1,14 +1,19 @@
-<script  setup>
-import { ref, onMounted } from 'vue'
-import { singleReactiveSize } from '@/utils/pxToVh.js'
+<!--
+  卡片组件
+   响应式尺寸，横向拉长时，宽度按照比例增长
+  -->
+<script setup>
+import { ref, computed } from 'vue'
+import settingInfo from '@/setting'
 const props = defineProps({
-    height: {
-        type: Number,
-        default: 0
-    },
+
     width: {
-        type: Number,
-        default: 0
+        type: [Number, String],
+        default: '100%'
+    },
+    height: {
+        type: [Number, String],
+        default: '100%'
     },
     bgColor: {
         type: String,
@@ -22,30 +27,40 @@ const props = defineProps({
         type: String,
         default: ''
     },
-    // 是否开启响应式尺寸
     responseSize: {
         type: Boolean,
         default: true
     }
 })
-let box = ref()
-onMounted(() => {
-    if (props.responseSize) {
-        // 处理元素box.value尺寸，使其保持响应式
-        singleReactiveSize(box.value, props.width, props.height)
-    } else {
-        // 非响应式，直接设置px单位
-        box.value.style.width = props.width + 'px'
-        box.value.style.height = props.height + 'px'
+
+const box = ref()
+const dynamicStyle = (props) => {
+    const { width, height, bgColor, bgImg, responseSize } = props
+    if (!responseSize) {
+        return {
+            width: typeof width === 'number' ? `${width}px` : width,
+            height: typeof height === 'number' ? `${height}px` : height,
+            backgroundColor: bgColor,
+            backgroundImage: bgImg ? `url(${bgImg})` : 'none',
+            backgroundSize: bgImg ? 'cover' : 'none',
+            backgroundRepeat: 'no-repeat',
+        }
     }
-    box.value.style.background = props.bgImg ? `url(${props.bgImg}) no-repeat` : 'none'
-    box.value.style.backgroundSize = props.bgImg ? `100% 100%` : 'none'
-    box.value.style.backgroundColor = `${props.bgColor}`
-})
+    else {
+        return {
+            width: typeof width === 'number' ? `${width / settingInfo.INITSCREENWIDTH * 100}vw` : width,
+            backgroundColor: bgColor,
+            backgroundImage: bgImg ? `url(${bgImg})` : 'none',
+            backgroundSize: bgImg ? 'cover' : 'none',
+            backgroundRepeat: 'no-repeat',
+            aspectRatio: typeof width === 'number' && typeof height === 'number' ? `${width} / ${height}` : 'auto'
+        }
+    }
+}
 </script>
 
 <template>
-    <div ref="box" class="card-container" :class="boxShadow ? 'boxShadow' : ''">
+    <div ref="box" class="card-container" :class="boxShadow ? 'boxShadow' : ''" :style="dynamicStyle(props)">
         <slot></slot>
     </div>
 </template>
@@ -53,7 +68,7 @@ onMounted(() => {
 <style scoped lang='scss'>
 .card-container {
     border-radius: 10px;
-    overflow: auto; //💡🈯
+    overflow: auto;
 }
 
 .boxShadow {
@@ -62,12 +77,5 @@ onMounted(() => {
     &:hover {
         box-shadow: 0 0 15px #cfcfcf;
     }
-}
-
-.card-container::after {
-    content: "";
-    width: 100px;
-    height: 100px;
-    background-color: red;
 }
 </style>

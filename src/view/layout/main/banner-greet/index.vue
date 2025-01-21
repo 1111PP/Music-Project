@@ -1,4 +1,4 @@
-<script  setup>
+<script setup>
 import lpCard from '@/components/lpUI/lp-card/index.vue'
 defineProps({
     totalData: {
@@ -10,7 +10,7 @@ defineProps({
 
 <template>
     <div class="banner-greet">
-        <lpCard :boxShadow="true" :height="158" :width="431" bgColor="white">
+        <lpCard :boxShadow="true" :height="158" :width="431">
             <template #default>
                 <div class="title">
                     <span class="timeText">
@@ -19,8 +19,8 @@ defineProps({
                     <span class="text">猜你最近喜欢听</span>
                 </div>
                 <div class="recommendSongs">
-                    <lpCard class="banner-childSongs" v-for="i in totalData.slice(0, 4)" :key="i.id" :boxShadow="true"
-                        :width="85" :height="85">
+                    <lpCard class="banner-childSongs" v-if="totalData" v-for="i in totalData.slice(0, 4)" :key="i.id"
+                        :boxShadow="true" :responseSize="true" :width="85" :height="85">
                         <template #default>
                             <div :style="{
                                 height: '100%',
@@ -58,6 +58,7 @@ defineProps({
     .recommendSongs {
         display: flex;
         justify-content: center;
+        margin-top: 5%;
 
         // ✨为非第1个元素设置间距,配合justify-content保持居中
         .banner-childSongs:nth-child(n+2) {
@@ -65,7 +66,7 @@ defineProps({
         }
 
         .banner-childSongs {
-            margin-top: 20px;
+            // margin-top: 20px;
             transition: transform 0.3s;
 
             /* 鼠标悬停时的样式 */

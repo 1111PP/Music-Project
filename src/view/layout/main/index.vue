@@ -1,4 +1,4 @@
-<script  setup>
+<script setup>
 import { ref, onMounted } from 'vue'
 import lpLoopPicture from '@/components/lpUI/lp-loopPicture/index.vue'
 import recommentSongList from './recommentSongList/index.vue'
@@ -7,45 +7,51 @@ import bannerGreet from './banner-greet/index.vue'
 import choicenessList from './choicenessList/index.vue'
 import littleCard from './littleCard/index.vue'
 import { useSongsStore } from '@/store/songs/index.js';
+import API from '@/api/music/imgdata/index.js'
+import getThemeColor from '@/utils/vividColor'
+
 const songsStore = useSongsStore()
-const loopPictureData = ref(songsStore.loopPictureData1)
+// const loopPictureData = ref(songsStore.loopPictureData1)
+const loopPictureData = ref(null)
 
 //✨测试数据 ->  根据 [茉莉雨] 为你推荐模块
 const testData1 = ref(null)
 const testData2 = ref(null)
 onMounted(async () => {
+    const r = await songsStore.loopPictureData1()
+    loopPictureData.value = r
+
+
     //异步数据，因为需要提取主题色
-    const r = await songsStore.radarSongListData1()
-    const r1 = await songsStore.songListData1()
-    testData1.value = r1
-    testData2.value = r
+    testData1.value = await songsStore.songListData1()
+    testData2.value = await songsStore.radarSongListData1()
 })
 </script>
 
 <template>
-    <div class="container">
+    <div class="main-layout-container">
         <!-- 1.顶部banner模块 -->
         <div class="main-banner">
             <!-- 顶部banner左侧-轮播图模块 -->
-            <div class="banner-looppicture">
-                <lpLoopPicture :totalData="loopPictureData" :width="431" :height="158"
-                    @change="(i) => { console.log(i) }" />
+            <div class="banner-loop-picture">
+                <lpLoopPicture v-if="loopPictureData" :totalData="loopPictureData" :width="431" :height="158"
+                    :initWidth="1153" @change="(i) => { console.log(i) }" />
             </div>
             <!-- 顶部banner右侧-打招呼模块 -->
-            <bannerGreet v-if="testData1" :totalData="testData1" />
+            <bannerGreet :totalData="testData1" />
         </div>
         <!-- 2.推荐歌单 -->
-        <div class="recommentList">
+        <div class="main-recommend-list">
             <div class="title">
                 <div>推荐歌单</div>
                 <svgDown color="black" style="transform:rotate(-90deg);margin-left: 5px;" />
             </div>
             <!-- ✨ -->
-            <recommentSongList v-if="testData1" :totalData="testData1" />
+            <recommentSongList :totalData="testData1" />
         </div>
 
         <!-- 3.榜单精选 -->
-        <div class="choicenessList">
+        <div class="main-choiceness-list">
             <div class="title">
                 <div>榜单精选</div>
                 <svgDown color="black" style="transform:rotate(-90deg);margin-left: 5px;" />
@@ -53,41 +59,43 @@ onMounted(async () => {
             <!-- ✨ -->
             <div class="songsList">
                 <!-- v-if是为了确保异步数据choicenessListData获取成功后再渲染 -->
-                <choicenessList v-if="testData2" title="飙升榜" :imgsData="testData2.slice(0, 3)" />
-                <choicenessList v-if="testData2" title="新歌榜" :imgsData="testData2.slice(1, 4)" />
-                <choicenessList v-if="testData2" title="热歌榜" :imgsData="testData2.slice(2, 5)" />
-                <choicenessList v-if="testData2" title="原创榜" :imgsData="testData2.slice(3, 6)" />
+                <choicenessList title="飙升榜" :start="0" :imgsData="testData2" />
+                <choicenessList title="新歌榜" :start="1" :imgsData="testData2" />
+                <choicenessList title="热歌榜" :start="2" :imgsData="testData2" />
+                <choicenessList title="原创榜" :start="3" :imgsData="testData2" />
             </div>
         </div>
         <!-- 4.雷达歌单 -->
-        <div class="radarSongList">
+        <div class="main-radar-list">
             <div class="title">
                 <div>111P的雷达歌单</div>
                 <svgDown color="black" style="transform:rotate(-90deg);margin-left: 5px;" />
             </div>
             <!-- ✨ -->
-            <radarSongList v-if="testData2" :totalData="testData2" />
+            <radarSongList :totalData="testData2" />
         </div>
         <!-- VIP专享 -->
-        <div class="VIPexclusive">
+        <div class="main-vip-exclusive">
             <div class="title">
                 <div>黑胶VIP专享，听歌放松一下</div>
                 <svgDown color="black" style="transform:rotate(-90deg);margin-left: 5px;" />
             </div>
             <div class="vip-container">
-                <littleCard v-if="testData2" v-for="i in testData2" singer="The Weekend" songName="Start Boy"
+                <littleCard v-if="testData2" v-for="i in testData2" singer="The Weeknd" songName="Start Boy"
                     :imgUrl="i.url" class="little-card" />
+                <littleCard v-else v-for="i in 8" class="little-card" />
             </div>
         </div>
         <!-- 根据 [茉莉雨] 为你推荐 -->
-        <div class="VIPexclusive">
+        <div class="main-vip-exclusive" style="margin-bottom:66px;">
             <div class="title">
                 <div>根据 [茉莉雨] 为你推荐</div>
                 <svgDown color="black" style="transform:rotate(-90deg);margin-left: 5px;" />
             </div>
             <div class="vip-container">
-                <littleCard v-if="testData1" v-for="i in testData1" singer="The Weekend" songName="Start Boy"
+                <littleCard v-if="testData2" v-for="i in testData1" singer="The Weeknd" songName="Start Boy"
                     :imgUrl="i.url" class="little-card" />
+                <littleCard v-else v-for="i in 8" class="little-card" />
             </div>
         </div>
     </div>
@@ -105,16 +113,17 @@ onMounted(async () => {
     background-color: rgba(92, 92, 92, 0.397);
 }
 
+.main-layout-container {
+    overflow: auto;
 
-
-.container {
     .main-banner {
         display: flex;
         justify-content: space-between;
         margin-bottom: 40px;
+        overflow: hidden;
 
         //轮播图
-        .banner-looppicture {
+        .banner-loop-picture {
             // margin-right: 20px;
         }
 
@@ -122,7 +131,7 @@ onMounted(async () => {
 
     }
 
-    .recommentList {
+    .main-recommend-list {
         .title {
             height: 15px;
             line-height: 15px;
@@ -135,7 +144,7 @@ onMounted(async () => {
         }
     }
 
-    .choicenessList {
+    .main-choiceness-list {
         margin-bottom: 40px;
 
         .title {
@@ -150,6 +159,7 @@ onMounted(async () => {
         }
 
         .songsList {
+            gap: 10px;
             display: flex;
             /* 元素换行 */
             flex-wrap: wrap;
@@ -159,7 +169,7 @@ onMounted(async () => {
         }
     }
 
-    .radarSongList {
+    .main-radar-list {
         margin-bottom: 40px;
 
         .title {
@@ -177,7 +187,7 @@ onMounted(async () => {
 
 
 
-    .VIPexclusive {
+    .main-vip-exclusive {
         margin-bottom: 30px;
 
         .title {
@@ -192,9 +202,12 @@ onMounted(async () => {
         }
 
         .vip-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            // grid-gap: 20px;
+            // display: flex;
+            // flex-wrap: wrap;
+            // justify-content: space-between;
         }
 
 

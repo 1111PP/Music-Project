@@ -23,9 +23,14 @@ export default function (url) {
       const img = new Image()
       img.src = url
       img.addEventListener('load', () => {
-        // console.log(img.width, img.height)
-        const imgWidth = 350 //宽高比:7/3
-        const imgHeight = 150
+        //🟥这里很关键，会直接影响主页加载时间
+        //   ❌通常是根据图片比例来控制画布大小，让图片等比例或原模原样画到canvas上，保持canvas和图片完美融合
+        //   🈯但是这样会导致提取算法非常耗时，于是选择将图片都变成100*100的大小，不保持图片原本比例，同时让图片画到100*100的canvas上，这样可以保证图片全部被画到画布上，这样对算法速度有极大的提升
+        const imgWidth = 100
+        const imgHeight = 100
+        canvas.width = 100
+        canvas.height = 100
+        // drawImage的4，5参数表示图片画到canvas的宽高，🈯自带缩放
         ctx.drawImage(img, 0, 0, imgWidth, imgHeight)
         const { data: imgData } = ctx.getImageData(0, 0, imgWidth, imgHeight)
         resolve(imgData)
@@ -93,6 +98,31 @@ export default function (url) {
     //🟥vividColor结构  ->  [ [ ['r,g,b,a',重复次数 ],饱和度指标 ] , ...... ]
     return vividColor[0][0][0]
   }
+  /**
+   * 主题色变亮
+   * @param {String} color
+   * @param {Number} value
+   * @return {String}
+   */
+  const lightColor = (color, value) =>
+    color
+      .split(',')
+      .slice(0, -1)
+      .map((i) => Math.max(0, +i - value))
+      .join()
+
+  /**
+   * 主题色变暗
+   * @param {String} color
+   * @param {Number} value
+   * @return {String}
+   */
+  const dimColor = (color, value) =>
+    color
+      .split(',')
+      .slice(0, -1)
+      .map((i) => Math.min(255, +i + value))
+      .join()
 
   return init(url)
 }

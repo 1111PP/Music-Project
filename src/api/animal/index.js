@@ -1,4 +1,4 @@
-import request from '@/utils/request.js'
+import request from '@/utils/request/common.js'
 import axios from 'axios'
 
 export const getCuteAnimal = () => {

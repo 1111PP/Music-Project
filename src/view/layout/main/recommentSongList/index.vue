@@ -1,19 +1,20 @@
-<script  setup>
+<script setup>
 import lpCard from '@/components/lpUI/lp-card/index.vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 defineProps({
     totalData: {
         typeof: Array,
         default: () => []
     }
 })
-
 </script>
 
 <template>
     <!-- 推荐歌单模块 -->
-    <div class="main-recommentSongList">
-        <lpCard class="single-song-playist" :boxShadow="true" v-for="   i  in  totalData.slice(4, totalData.length)"
-            :key="i.id" bgColor="white" :width="206" :height="259" :responseSize="false">
+    <div class="song-list-grid">
+        <lpCard class="song-list-item" v-if="totalData" v-for="i in totalData.slice(4, totalData.length)" :key="i.id"
+            :boxShadow="true" bgColor="white" :width="206" :height="259" :responseSize="false">
             <template #default>
                 <div class="song-list-item">
                     <div class="topText">
@@ -46,18 +47,22 @@ defineProps({
                             </div>
                         </div>
                         <!-- 🟥style设置鼠标移入歌单卡片后✨背景渐变色 -->
-                        <div ref="maskingBgc" class="maskingBgc"
-                            :style="{ background: `linear-gradient(to top,rgba(${i.themeColor}, 1) 0%,rgba(${i.themeColor}, 1) 40%,rgba(${i.themeColor}, 0) 100%)` }">
+                        <div ref="maskingBgc" class="maskingBgc" :style="{
+                            background:
+                                `linear-gradient(to top,rgba(${i.themeColor}, 1) 0%,rgba(${i.themeColor}, 1) 40%,rgba(${i.themeColor}, 0) 100%)`
+                        }">
                         </div>
                     </div>
                 </div>
             </template>
         </lpCard>
+        <lpCard :boxShadow="true" v-else v-for="(i)  in 4" :key="i" bgColor="white" :width="206" :height="259"
+            :responseSize="false" />
     </div>
 </template>
 
 <style scoped lang='scss'>
-.main-recommentSongList {
+.song-list-grid {
     display: flex;
     // flex-direction: column;
     justify-content: space-between;
@@ -65,7 +70,7 @@ defineProps({
 
 
 
-    .single-song-playist {
+    .song-list-item {
 
         //🟥1.hover歌单卡片后的文字向上偏移效果
         .song-list-item:hover .text {
@@ -157,7 +162,7 @@ defineProps({
                         margin-left: 10px;
                         color: white;
                         font-size: 12px;
-                        margin-top: -8px;
+                        margin-top: 5px;
                     }
                 }
 

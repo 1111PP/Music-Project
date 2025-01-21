@@ -1,4 +1,4 @@
-<script  setup>
+<script setup>
 import lpCard from '@/components/lpUI/lp-card/index.vue'
 defineProps({
     totalData: {
@@ -11,8 +11,9 @@ defineProps({
 <template>
     <!-- 推荐歌单模块 -->
     <div class="main-recommentSongList">
-        <lpCard class="single-song-playist" :boxShadow="true" v-for="   i  in  totalData.slice(4, totalData.length)"
-            :key="i.id" bgColor="white" :width="206" :height="259" :responseSize="false">
+        <lpCard class="single-song-playist" v-if="totalData" :boxShadow="true"
+            v-for="   i in totalData.slice(4, totalData.length)" :key="i.id" bgColor="white" :width="206" :height="259"
+            :responseSize="false">
             <template #default>
                 <div class="song-list-item">
                     <div class="topText">
@@ -50,6 +51,8 @@ defineProps({
                 </div>
             </template>
         </lpCard>
+        <lpCard class="single-song-playist" v-else :boxShadow="true" v-for="   i in 4" :key="i" bgColor="white"
+            :width="206" :height="259" :responseSize="false" />
     </div>
 </template>
 
@@ -155,7 +158,7 @@ defineProps({
                         margin-left: 10px;
                         color: white;
                         font-size: 12px;
-                        margin-top: -8px;
+                        margin-top: 5px;
                     }
                 }
 

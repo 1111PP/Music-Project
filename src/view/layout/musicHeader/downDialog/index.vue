@@ -1,6 +1,14 @@
-<script  setup>
-import { ref, watch, onMounted } from 'vue'
+<script setup>
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import lpDialog from '@/components/lpUI/lp-dialog/index.vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
+import useUserData from '@/store/user/index.js'
+import { storeToRefs } from 'pinia';
+const userData = useUserData()
+const { userInfo, promiseArr, clearUserInfo, canLogout } = storeToRefs(userData)
+import { useAudioStore } from '@/store/audio'
+const audioStore = useAudioStore()
 //展示数据
 const listItem = ref([
     {
@@ -40,20 +48,37 @@ const showDialog = () => {
 const closeDialog = () => {
     downDialogStatus.value = false;
 }
+let timer = null
+const logout = () => {
+    // ❌问题：当comment组件onBeforeUnmount时会发送保存点赞请求，但是冲突了，因为在comment界面退出登录时，实际上先执行router.push('/login')，随后token、用户信息之类的消息都被清空，请求就会失败
+    //✨涉及到Vue底层watch回调执行时机，watch会在监视的值改变后立即将回调推入微队列,所以canLogout改变后，comment组件的watch会立即将回调推入微队列，所以肯定先于Promise.all.then的执行,然后watch回调中保存的异步操作将Promise们收集到promiseArr，等待全部完成,然后再执行Promise.then中的退出逻辑了
+    // ❓然而执行后,打印顺序依旧是正常的,但是promiseArr会为空,也就是说一些奇怪的现象( 可能是执行顺序冲突 )导致了watch回调没有及时收集到那些保存操作的Promise,从而出现了请求依旧没有发出的问题
+    // 💡解决:强制延缓Promise.all.then操作,确保watch执行完全
+    // 打印顺序: logout  ->  watch执行  -> 退出中
+    canLogout.value = false
+    // console.log('logout');
+    setTimeout(async () => {
+        const r = await Promise.all(promiseArr.value)
+        // console.log('退出中', r);
+        userData.clearUserInfo()
 
-//svg图标hover效果
-const logoutSvg = ref()
-const changeStyle = () => {
-    logoutSvg.value.changeStyle()
+        //清除pinia数据
+        window.location.reload()
+
+        router.push('/login')
+    })
 }
-const clearStyle = () => {
-    logoutSvg.value.clearStyle()
-}
+onBeforeUnmount(() => {
+    console.log('clear !!!!', timer);
+    clearInterval(timer)
+})
+
 </script>
 
 <template>
     <div class="dialog-container">
-        <component @click="showDialog" class="header-iconStyle" is="svgDown" height="12px" width="12px">
+        <component class="header-iconStyle" @click="showDialog" style="margin-top: 5px;" is="svgDown" height="15px"
+            width="15px" color="gray">
         </component>
     </div>
     <!-- 弹窗单独封装组件 -->
@@ -76,23 +101,22 @@ const clearStyle = () => {
             </div>
             <div class="line"></div>
             <div class="bottom">
-                <van-cell-group :border="false">
-                    <van-cell class="itemStyle" v-for="item in listItem" :border="false" :key="item.id" is-link>
-                        <template #title>
-                            <!-- <svgSetting fill="black" height="20px" width="20px"
-                            style="margin-right: 4px; vertical-align:top;" /> -->
-                            <component style="vertical-align:top;" is="svgLove" heght="20px" width="20px" color="black">
+                <ul class="menu-list">
+                    <li v-for="item in listItem" :key="item.id" class="menu-item itemStyle">
+                        <div>
+                            <component style="vertical-align:top; margin-right: 8px;" is="svgLove" height="20px"
+                                width="20px" color="black">
                             </component>
                             <span>{{ item.text }}</span>
-                        </template>
-
-                    </van-cell>
-                </van-cell-group>
+                        </div>
+                        <span class="arrow">›</span>
+                    </li>
+                </ul>
             </div>
             <div class="line"></div>
             <div class="logout" @mouseover="changeStyle" @mouseleave="clearStyle">
                 <svgLogout height="23px" ref="logoutSvg" width="23px" />
-                <p class="textStyle">退出登录</p>
+                <p class="textStyle" @click="logout">退出登录</p>
             </div>
         </template>
     </lp-dialog>
@@ -138,10 +162,12 @@ const clearStyle = () => {
     margin: 10px 0;
 
     .itemStyle {
-        margin: 0;
+        display: flex;
+        justify-content: space-between;
         height: 36px;
         width: 90%;
         margin-left: 20px;
+        font-size: 16px;
         // background-color: rgb(234, 234, 234);
     }
 }
@@ -156,9 +182,5 @@ const clearStyle = () => {
 
 .logout:hover .textStyle {
     color: red
-}
-
-:deep(.van-cell-group) {
-    background-color: #F7F9FC;
 }
 </style>

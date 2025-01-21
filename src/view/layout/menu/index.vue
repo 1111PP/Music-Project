@@ -1,31 +1,39 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
 const menuItemTop = ref(
     [
         {
             text: "为我推荐",
             icon: 'svgHome',
-            id: 1
+            id: 1,
+            path: '/main'
         },
         {
             text: "云音乐精选",
             icon: 'svgChoiceness',
-            id: 2
+            id: 2,
+            path: '/main'
         },
         {
             text: "博客",
             icon: 'svgBoKe',
-            id: 3
+            id: 3,
+            path: '/main'
         },
         {
             text: "私人漫游",
             icon: 'svgSYJ',
-            id: 4
+            id: 4,
+            path: '/main'
         },
         {
             text: "社区",
             icon: "svgShequ",
-            id: 5
+            id: 5,
+            path: '/main'
         },
     ]
 )
@@ -33,49 +41,52 @@ const menuItemBottom = ref([
     {
         text: "我喜欢的音乐",
         icon: 'svgLove',
-        id: 6
+        id: 6,
+        path: '/mylove'
     },
     {
         text: "最近播放",
         icon: 'svgZuiJin',
-        id: 7
+        id: 7,
+        path: '/main'
     },
     {
         icon: 'svgMyBoKe',
         text: "我的博客",
-        id: 8
+        id: 8,
+        path: '/main'
     },
     {
         icon: 'svgCollect',
         text: "我的收藏",
-        id: 9
+        id: 9,
+        path: '/main'
     },
     {
         icon: 'svgDownload',
         text: "下载管理",
-        id: 10
+        id: 10,
+        path: '/main'
     },
     {
         icon: 'svgLocal',
         text: "本地音乐",
-        id: 11
+        id: 11,
+        path: '/main'
     },
     {
         icon: 'svgCloud',
         text: "我的音乐云盘",
-        id: 12
+        id: 12,
+        path: '/main'
     },
 ])
 //默认激活第1个menu菜单栏
 const active = ref(1)
-const currItem = (id) => {
-    active.value = id
-    //😂纪念一下刚写这个项目时写的屎山代码
-    // const prev = document.getElementsByClassName('menuItem-active')
-    // if (prev.length !== 0) {
-    //     prev[0].classList.remove('menuItem-active')
-    // }
-    // document.getElementsByClassName('menuItem')[active.value - 1].classList.add('menuItem-active')
+const currItem = (item) => {
+    active.value = item.id
+    console.log(active.value);
+    router.push(item.path)
 }
 onMounted(() => {
     document.querySelector('.menuItem')?.classList.add('menuItem-active')
@@ -85,11 +96,11 @@ onMounted(() => {
 <template>
     <div class="menu-container">
         <div class="topline"></div>
-        <el-menu class="el-menu-vertical-demo">
+        <el-menu class="el-menu-vertical-demo" default-active="1">
             <!-- 上菜单 -->
             <el-menu-item style="height:41px" :index="String(item.id)" v-for="item in menuItemTop" :key="item.id">
                 <template #title>
-                    <div class="menuItem" :class="active === item.id ? 'menuItem-active' : ''" @click="currItem(item.id)">
+                    <div class="menuItem" :class="active === item.id ? 'menuItem-active' : ''" @click="currItem(item)">
                         <component :color="active == item.id ? 'white' : 'gray'" :is="item.icon"></component>
                         <span class="menutext">
                             {{ item.text }}
@@ -103,7 +114,7 @@ onMounted(() => {
             </el-menu-item>
             <!-- 下菜单 -->
             <el-menu-item style="height:40px" :index="String(item.id)" v-for="item in menuItemBottom" :key="item.id">
-                <div class="menuItem" :class="active === item.id ? 'menuItem-active' : ''" @click="currItem(item.id)">
+                <div class="menuItem" :class="active === item.id ? 'menuItem-active' : ''" @click="currItem(item)">
                     <component :color="active == item.id ? 'white' : 'gray'" :is="item.icon"></component>
                     <span class="menutext">
                         {{ item.text }}
@@ -124,7 +135,7 @@ onMounted(() => {
     </div>
 </template>
 
-<style lang="scss" >
+<style lang="scss">
 .menu-container {
 
     .topline {
@@ -176,5 +187,9 @@ onMounted(() => {
 
 .el-menu-vertical-demo {
     background-color: #F0F3F6;
+}
+
+.el-menu {
+    border: none
 }
 </style>

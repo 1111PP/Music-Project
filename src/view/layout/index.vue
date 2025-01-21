@@ -1,10 +1,16 @@
-<script  setup>
-import { ref } from 'vue'
+<script setup>
+import { ref, onMounted, watch } from 'vue'
 import Menu from './menu/index.vue'
 import musicLogo from './logo/index.vue'
 import musicHeader from './musicHeader/index.vue'
 import musicMain from './main/index.vue'
+import outMusicFooter from "@/components/musicFooter/out-index.vue"
 
+import { useRoute } from 'vue-router'
+const route = useRoute()
+watch(() => route.path, () => {
+    console.log(route.path);
+})
 </script>
 
 <template>
@@ -25,11 +31,13 @@ import musicMain from './main/index.vue'
                 <music-header />
             </div>
             <div class="main">
-                <!-- <musicMain /> -->
+                <!-- 路由动画 -->
                 <router-view></router-view>
             </div>
         </div>
     </div>
+    <!-- 主页的歌词底部组件 -->
+    <outMusicFooter />
 </template>
 
 <style scoped lang='scss'>
@@ -56,12 +64,17 @@ import musicMain from './main/index.vue'
         //🟥右侧背景颜色
         background-color: #F7F9FC;
 
+        .top {
+            padding: 10px 0;
+        }
+
         .main {
-            // 右侧width，需要减去musicHeader的高度
-            height: calc(100vh - 60px - 40px);
+            // ✨主内容区域
+            //    需要减去1.main的padding 2.musicHeader：60px的高度 3.musicHeader的padding
+            height: calc(100vh - 40px - 60px - 20px);
             // background-color: #F7F9FC;
+            padding: 10px 35px 20px 38px;
             overflow: auto;
-            padding: 20px 35px 20px 38px;
         }
     }
 }

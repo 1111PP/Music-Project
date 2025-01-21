@@ -1,4 +1,4 @@
-<script  setup>
+<script setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import lpVirtuallist from '@/components/lpUI/lp-virtualList/index.vue'
 import lpInfiniteScroll from '@/components/lpUI/lp-infiniteScroll/index.vue'
@@ -18,7 +18,7 @@ const mockData1 = (singleData, count) => {
     return new Array(count).fill(null).map((i, index) => {
         const { title, text, date } = singleData
         //🟥渡一前端课程，对于静态资源的安全引入方式,能被vite打包时正确创建此组件对图片的依赖，从而不会出现图片未被打包进dist目录的情况
-        let avatar = new URL('./public/private-letter-avatar.png', import.meta.url)
+        let avatar = new URL('@public/private-letter-avatar.png', import.meta.url)
         return {
             id: index,
             title: `${title + (index + 1)}`,
@@ -38,7 +38,7 @@ const mockData4 = (singleData, count) => {
     return new Array(count).fill(null).map((i, index) => {
         let { username, text, date } = singleData
         //🟥渡一前端，对于静态资源的安全引入方式
-        let avatar = new URL('./public/following-avatar.png', import.meta.url)
+        let avatar = new URL('@public/following-avatar.png', import.meta.url)
         return {
             id: index,
             username: username + " " + (index + 1) + '号',
@@ -49,7 +49,7 @@ const mockData4 = (singleData, count) => {
     })
 }
 //信息为空时的图片
-const emptyInfo = ref(new URL("./public/header-menu-empty.png", import.meta.url))
+const emptyInfo = ref(new URL("@public/header-menu-empty.png", import.meta.url))
 
 //菜单对应的数据
 const privateLetterData = ref(mockData1(data1, 100))
@@ -95,30 +95,35 @@ const clickMenu = (index) => {
 </script>
 
 <template>
-    <div class="mail-container">
+    <div class="mail-header-container">
         <component @click="openDrawer" class="header-iconStyle" is="svgMail" height="18px" width="18px">
         </component>
-        <el-drawer size="399px" class="elDrawer" :show-close="false" v-model="drawerSwitch">
+        <el-drawer size="399px" :lock-scroll="false" class="elDrawer" :show-close="false" v-model="drawerSwitch">
             <template #header>
-                <ul class="headerMenu">
-                    <li v-for="i in menuEmun" @click="clickMenu(i.id)" :class="i.id === currentStatus ? 'active' : ''">{{
-                        i.name
-                    }}</li>
-                    <span>
-                        <el-icon style="vertical-align: middle">
-                            <View />
-                        </el-icon>
-                        一键全读
-                    </span>
-                </ul>
+                <div class="">
+                    <ul class="mail-header-menu">
+                        <li v-for="i in menuEmun" @click="clickMenu(i.id)"
+                            :class="i.id === currentStatus ? 'active' : ''">
+                            {{
+                                i.name
+                            }}</li>
+                        <span>
+                            <el-icon style="vertical-align: middle">
+                                <View />
+                            </el-icon>
+                            一键全读
+                        </span>
+                    </ul>
+                </div>
             </template>
             <template #default>
                 <!-- 每次获取500/80=6个列表数据，可视窗口正好可以完美展示5个，头和尾展示半个的情况下 可视窗口最多展示6个，所以为了保持连贯效果，每次获取6个列表数据-->
                 <lp-virtuallist v-if="drawerSwitch && currentStatus === 0 && privateLetterData.length !== 0"
-                    :listData="privateLetterData" :outHeight="drawerBodyHeight" :drawerSwitch="drawerSwitch" :count="10">
+                    :listData="privateLetterData" :outHeight="drawerBodyHeight" :drawerSwitch="drawerSwitch"
+                    :count="10">
                     <!-- 作用域插槽 -->
                     <template #default="{ item }">
-                        <div class="listStyle">
+                        <div class="mail-list-item">
                             <img class="avatar" :src="item.avatar" alt="">
                             <div class="right">
                                 <p class="title">
@@ -132,6 +137,8 @@ const clickMenu = (index) => {
                         </div>
                     </template>
                 </lp-virtuallist>
+
+
                 <lp-virtuallist v-else-if="drawerSwitch && currentStatus == 1 && commentMenuData.length !== 0">
                 </lp-virtuallist>
                 <lp-virtuallist v-else-if="drawerSwitch && currentStatus == 2 && aboutmeMenuData.length !== 0">
@@ -139,7 +146,7 @@ const clickMenu = (index) => {
                 <lpInfiniteScroll v-else-if="drawerSwitch && currentStatus == 3 && noticeMenuData.length !== 0"
                     :listData="noticeMenuData" :outHeight="drawerBodyHeight" :singlePushCount="10">
                     <template #default="{ item }">
-                        <div class="listStyle4">
+                        <div class="mail-list-item-4">
                             <img class="avatar" :src="item.avatar" alt="">
                             <div class="right">
                                 <span class="username">
@@ -180,14 +187,14 @@ const clickMenu = (index) => {
 }
 
 //drawer样式修改
-.mail-container {
+.mail-header-container {
     margin-top: 5px;
 
-    .headerMenu {
+    .mail-header-menu {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 60%;
+        width: 100%;
         margin: 20px 0 20px 10px;
 
         li {
@@ -202,7 +209,7 @@ const clickMenu = (index) => {
 
     }
 
-    .listStyle {
+    .mail-list-item {
         padding: 10px 0;
         display: flex;
         align-items: center;
@@ -248,7 +255,7 @@ const clickMenu = (index) => {
         }
     }
 
-    .listStyle4 {
+    .mail-list-item-4 {
         padding: 10px 0;
         display: flex;
         align-items: center;
@@ -296,7 +303,7 @@ const clickMenu = (index) => {
 
     :deep(.el-drawer__header) {
         height: 50px;
-        margin: 0;
+        margin-bottom: 0px;
         padding: 0;
     }
 

@@ -43,7 +43,7 @@ const hanldClick = (e) => {
     // console.log('click');
     let xSite = e.clientX
     let ySite = e.clientY
-    console.log(xSite, ySite);
+    // console.log(xSite, ySite);
     //dialog以外区域点击就会关闭
     if (!(xSite < xEnd.value && xSite > xStart.value && ySite < yEnd.value && ySite > yStart.value)) {
         dialogStatus.value = false

@@ -1,24 +1,29 @@
-<script  setup>
+<script setup>
 import lpCard from '@/components/lpUI/lp-card/index.vue'
 defineProps({
     title: {
-        typeof: String,
+        type: String,
         default: ''
     },
     imgsData: {
-        typeof: Array,
+        type: Array,
         default: () => []
     },
+    start: {
+        type: Number,
+        default: 0,
+    },
     songName: {
-        typeof: Array,
+        type: Array,
         default: () => []
     }
 })
 </script>
 
 <template>
-    <div class="container">
-        <lpCard class="card" :boxShadow="false" :height="146" :width="426" bgColor="white" :responseSize="false">
+    <div class="choiceness-container">
+        <lpCard class="choiceness-card" :boxShadow="false" :height="146" :width="399" bgColor="white"
+            :responseSize="false">
             <template #default>
                 <div class="title">
                     <div class="left-text">
@@ -30,12 +35,13 @@ defineProps({
                 </div>
                 <div class="item-songs">
                     <div class="songs-imgs">
-                        <img class="imgs" v-for="(i, index) in imgsData.slice(0, 3)" :key="i.id" :src="i.url" alt="" :style="{
-                            height: `${80 - index * 15}px`,
-                            width: `${80 - index * 15}px`,
-                            transform: `translateX(${index * 25}px)`,
-                            zIndex: 10 - index,
-                        }" />
+                        <img class="imgs" v-if="imgsData" v-for="(i, index) in imgsData.slice(start, start + 3)"
+                            :key="i.id" :src="i.url" alt="" :style="{
+                                height: `${80 - index * 15}px`,
+                                width: `${80 - index * 15}px`,
+                                transform: `translateX(${index * 25}px)`,
+                                zIndex: 10 - index,
+                            }" />
                         <svgTriangle height="39px" width="39px" class="icon" />
                     </div>
                     <div class="songs-name">
@@ -50,11 +56,11 @@ defineProps({
 </template>
 
 <style scoped lang='scss'>
-.container {
+.choiceness-container {
     margin-bottom: 15px;
 
     //✨增加样式优先级
-    .card:hover .item-songs .songs-imgs .icon {
+    .choiceness-card:hover .item-songs .songs-imgs .icon {
         opacity: 1;
     }
 
